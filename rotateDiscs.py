@@ -8,6 +8,8 @@ Created on Fri Feb  2 14:16:38 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import zipfile
 
 #Plot Non-Rotated Discs
 fig0 = plt.figure(0)
@@ -100,7 +102,7 @@ def RotateVertices(Nbots,nvert,structureName,gridPosition,COM):
     #Rotate Grid Structures around COM based off of above angle 
     for i in range(int(Nbots)):
         #open newly rotated vertex file
-        f = open('rotated'+structureName+str(i+1)+'.vertex','w')
+        f = open('RotatedDisc/'+structureName+str(i+1)+'.vertex','w')
         f.write('%i\n'%nvert)
         
         #Rotate coord values about center of mass
@@ -119,6 +121,18 @@ def RotateVertices(Nbots,nvert,structureName,gridPosition,COM):
         ax1.axis('equal')
     
     return
+
+def zipFiles(src,dst):
+    zf = zipfile.ZipFile('%s.zip' % (dst), 'w', zipfile.ZIP_DEFLATED)
+    abs_src = os.path.abspath(src)
+    for dirname, subdirs, files in os.walk(src):
+        for filename in files:
+            absname = os.path.abspath(os.path.join(dirname, filename))
+            arcname = absname[len(abs_src) + 1:]
+            print('zipping %s as %s' % (os.path.join(dirname, filename),
+                                        arcname))
+            zf.write(absname, arcname)
+    zf.close()
     
 def main():
     
@@ -181,6 +195,8 @@ def main():
     fig0.savefig('NonRotated.png')
     fig1.savefig('Rotated.png')
     #plt.show()
+    
+    zipFiles('RotatedDisc','RotatedDiscs')
     
 #-------------------END MAIN---------------------
 main()
