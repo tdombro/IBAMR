@@ -21,6 +21,8 @@ fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(1,1,1,aspect=1)
 ax1.set_title('Rotated Discs')
 
+seed = 1123
+
 def GridSetup(Nbots,structureName,COM,distFromCOM):
     #Sets up a grid of swimmers to use in IBAMR simulation. Blocks them
     #grid starts at (0,0). Grid increments (0.9,0.9) for every additional row,column of swimmers
@@ -90,7 +92,7 @@ def RotateVertices(Nbots,nvert,structureName,gridPosition,COM):
     #COM = np.zeros((Nbots,2))
     
     #Generate Random Angles
-    np.random.seed(0)
+    np.random.seed(seed)
     for i in range(Nbots):
         theta[i] = 2.0*np.pi*np.random.rand(1)
         print('theta[%i] = %.3e' %(i,theta[i]))
@@ -99,10 +101,13 @@ def RotateVertices(Nbots,nvert,structureName,gridPosition,COM):
         rotationMatrix[i,1,0] = np.sin(theta[i])
         rotationMatrix[i,1,1] = np.cos(theta[i])     
         
+    #Create Directory of random seed
+    MakeDirectory('RotatedDisc',seed)
+
     #Rotate Grid Structures around COM based off of above angle 
     for i in range(int(Nbots)):
         #open newly rotated vertex file
-        f = open('RotatedDisc/'+structureName+str(i+1)+'.vertex','w')
+        f = open('RotatedDisc/'+str(seed)+'/'+structureName+str(i+1)+'.vertex','w')
         f.write('%i\n'%nvert)
         
         #Rotate coord values about center of mass
@@ -133,6 +138,11 @@ def zipFiles(src,dst):
                                         arcname))
             zf.write(absname, arcname)
     zf.close()
+
+def MakeDirectory(directory,seed):
+    if not os.path.exists(directory+'/'+str(seed)):
+        os.makedirs(directory+'/'+str(seed))
+    return
     
 def main():
     
@@ -193,10 +203,10 @@ def main():
         ax1.axhline(y=2.0*i*distFromCOM)
         
     fig0.savefig('NonRotated.png')
-    fig1.savefig('Rotated.png')
+    fig1.savefig('Rotated'+str(seed)+'.png')
     #plt.show()
     
-    zipFiles('RotatedDisc','RotatedDiscs')
+    zipFiles('RotatedDisc/'+str(seed),'RotatedDiscs'+str(seed))
     
 #-------------------END MAIN---------------------
 main()
