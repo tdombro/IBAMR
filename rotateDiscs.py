@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import zipfile
+from shutil import copyfile
 
 #Plot Non-Rotated Discs
 fig0 = plt.figure(0)
@@ -21,7 +22,7 @@ fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(1,1,1,aspect=1)
 ax1.set_title('Rotated Discs')
 
-seed = 1123
+seed = 3858
 
 def GridSetup(Nbots,structureName,COM,distFromCOM):
     #Sets up a grid of swimmers to use in IBAMR simulation. Blocks them
@@ -147,7 +148,7 @@ def MakeDirectory(directory,seed):
 def main():
     
     #Number of swimmers
-    Nbots = 9
+    Nbots = 16
     #Distance from COM
     distFromCOM = 0.5
     #List of structure names
@@ -194,6 +195,14 @@ def main():
         gridPosition, nvert, COM = GridSetup(Nbots,structureNames[i],COM,distFromCOM)
         RotateVertices(Nbots,nvert,structureNames[i],gridPosition,COM)
     
+    #Copy spring/beam files for all structures
+    for i in range(len(structureNames)):
+        for j in range(1,Nbots+1):
+            copyfile(structureNames[i]+str(1)+'.spring','RotatedDisc/'+str(seed)+'/'+structureNames[i]+str(j)+'.spring')
+            if(structureNames[i] == 'skeleton'):
+                copyfile(structureNames[i]+str(1)+'.beam','RotatedDisc/'+str(seed)+'/'+structureNames[i]+str(j)+'.beam')
+            
+    #Plot Rotated Discs
     ax0.plot(COM[:,0],COM[:,1],'ko')
     ax1.plot(COM[:,0],COM[:,1],'ko')
     for i in range(int(np.sqrt(Nbots)+1)):
